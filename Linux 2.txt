@@ -1,0 +1,53 @@
+#!/bin/bash -u 
+PATH=/bin:/usr/bin ; export PATH
+umask 022
+#amir salehi #sale0181@algonquinlive.com
+if [ "$#" -lt 1 ]; then
+  echo "Usage: exam_stats.sh student_number:student_name:student_grade [...]" >&2
+echo "Error : expecting atleast 1 argument, find $#" >&2
+  exit 1
+fi
+
+declare -a students=()
+num_students=0
+total_grade=0
+min_grade=101
+max_grade=-1
+
+for student in "$@"; do
+        id="$(echo "$student" | cut -d : -f 1)"
+        name="$(echo "$student" | cut -d : -f 2)"
+        grade="$(echo "$student" | cut -d : -f 3)"
+
+  if [ "$grade" -lt 0 ] || [ "$grade" -gt 100 ]; then
+    echo "Invalid grade $grade for student $name" >&2
+    exit 10
+  fi
+
+  students[$id]="$name:$grade"
+  total_grade=$((total_grade + grade))
+
+  if [ "$grade" -lt "$min_grade" ]; then
+    min_grade=$grade
+    min_id=$id
+  fi
+
+  if [ "$grade" -gt "$max_grade" ]; then
+    max_grade=$grade
+    max_id=$id
+  fi
+done
+
+num_students=${#students[*]}
+
+average=$((total_grade / num_students))
+
+echo "#6486" > stats.txt
+echo "NUM_STUDS=$num_students" >> stats.txt
+echo "AVG=$average" >> stats.txt
+echo "TOP_ID=$max_id" >> stats.txt
+echo "TOP_NAME=$(echo ${students[$max_id]} | cut -d : -f 1)" >> stats.txt
+echo "TOP_GRADE=$max_grade" >> stats.txt
+echo "BOTTOM_ID=$min_id" >> stats.txt
+echo "BOTTOM_NAME=$(echo ${students[$min_id]} | cut -d : -f 1)" >> stats.txt
+echo "BOTTOM_GRADE=$min_grade" >> stats.txt
