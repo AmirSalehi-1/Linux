@@ -1,0 +1,46 @@
+#!/bin/sh -u
+PATH=/bin:/usr/bin ; export PATH
+umask 022
+# amir salehi sale0181@algonquinlive.com
+
+if [ $# -ge 2 ]; then
+#Store the student number and remove it from the arguments list
+student_number="$1"
+shift
+
+#Initialize the output file content with the last 4 digits of the student number
+output_content="#6486\n"
+
+question_number=1
+for answer in "$@"
+do
+
+
+    if [ "$answer" = "-" ]; then
+            answer="-"
+    elif [ "$answer" -ge 1 ] && [ "$answer" -le 5 ]; then
+            :
+    else
+      echo 1>&2 "$0:stating that "$answer " is the cause of an error."
+        exit 2
+    fi
+    if [ "$answer" != "-" ];then
+        answer=$(echo "A B C D E" | cut -d " " -f "$answer")
+    fi
+
+
+
+    output_content="${output_content}${question_number}) $answer\n"
+
+
+    question_number=$((question_number+1))
+done
+
+
+echo "$output_content" > "${student_number}.txt"
+else
+        echo 1>&2 "$0: Error: exspecting atleast two arguments,found $#($*) "
+        exit 1
+fi
+
+~       
